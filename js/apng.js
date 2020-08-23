@@ -30,7 +30,11 @@
 
 (function(root) {
 
-	var APNGEncoder = function(){
+	var APNGEncoder = function(w, h, fps){
+		this._width = w;
+		this._height = h;
+		this._fps = fps;
+
 		this._crcTable = new Uint32Array(256);
 		for (var n=0; n<256; n++) {
 			var c = n;
@@ -74,8 +78,8 @@
 				var IHDR_view = new DataView(IHDR.buffer);
 				IHDR_view.setUint32(0, 13);
 				this._writeStr(IHDR, 4, 'IHDR');
-				IHDR_view.setUint32(8, VIDEO_WIDTH);
-				IHDR_view.setUint32(12, VIDEO_HEIGHT);
+				IHDR_view.setUint32(8, this._width);
+				IHDR_view.setUint32(12, this._height);
 				IHDR_view.setUint8(16, 8); // bit depth
 				IHDR_view.setUint8(17, 6); // color_type, 2 = RGB, 6 = RGBA
 				IHDR_view.setUint8(18, 0); // compression method
@@ -105,8 +109,8 @@
 			fcTL_view.setUint32(0, 26);
 			this._writeStr(fcTL, 4, 'fcTL');
 			fcTL_view.setUint32(8, sequence_number++);
-			fcTL_view.setUint32(12, VIDEO_WIDTH);
-			fcTL_view.setUint32(16, VIDEO_HEIGHT);
+			fcTL_view.setUint32(12, this._width);
+			fcTL_view.setUint32(16, this._height);
 			fcTL_view.setUint32(20, 0);
 			fcTL_view.setUint32(24, 0);
 			//	The delay_num and delay_den parameters together specify a fraction
@@ -115,7 +119,7 @@
 			//	1/100ths of a second). If the the value of the numerator is 0 the decoder should
 			//	render the next frame as quickly as possible, though viewers may impose a
 			//	reasonable lower bound.
-			fcTL_view.setUint16(28, 1000/VIDEO_FPS); // delay_num
+			fcTL_view.setUint16(28, 1000/this._fps); // delay_num
 			fcTL_view.setUint16(30, 1000); // delay_den
 			fcTL_view.setUint8(32, 0); // dispose_op
 			fcTL_view.setUint8(33, 0); // blend_op

@@ -26,7 +26,8 @@ var buttonUpload = document.querySelector('#btn-upload');
 
 var statusDisplay = document.querySelector('#status-display');
 var urlCreator = window.URL || window.webkitURL;
-var apng = new APNGEncoder();
+
+var apng = new APNGEncoder(VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_FPS);
 
 function logStatus(msg) {
 	//console.log(msg);
