@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1">
+	<meta name="mobile-web-app-capable" content="yes">
+	<title>APNG Encoder Demo: Camera Recorder</title>
+	<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+	<div id="container">
+		<h1>APNG Encoder Demo: Camera Recorder</h1>
+		<div class="wrapper">
+			<video autoplay playsinline muted></video>
+		</div>
+		<div class="wrapper">
+			<img id="play-back" alt="" src="px.png">
+		</div>
+		<div class="row">
+			<button id="btn-record" disabled>Record Clip</button>
+			<button id="btn-save" disabled>Save Clip</button>
+			<button id="btn-upload" disabled>Upload Clip</button>
+		</div>
+		<div id="status-display"></div>
+	</div>
+	<canvas></canvas>
+	<script src="js/apng.js"></script>
+	<script src="js/adapter.min.js"></script>	
+	<script src="js/main.js"></script>
+</body>
+</html>
