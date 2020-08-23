@@ -1,6 +1,6 @@
 /**
- * APNG video recorder - blob version.
- * This version uses canvas.toBlob(...) to record frames as PNG blobs.
+ * APNG camera recorder
+ * This demo uses canvas.toBlob(...) to record camera frames as PNG blobs.
  * @version 0.3
  */
 
@@ -39,7 +39,7 @@ buttonRecord.addEventListener('click', function () {
 	buttonUpload.disabled = true;
 
 	logStatus('Recording...');
-	
+
 	var frame_blobs = [];
 	var rec = setInterval(function(){
 		ctx.drawImage(video, 0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
@@ -73,16 +73,16 @@ buttonUpload.addEventListener('click', function () {
 	logStatus('Uploading clip...');
 	buttonUpload.disabled = true;
 	apng.upload(
-		'echo.php', 
+		'echo.php',
 		'clip',
 		{foo: 'bar'},
 		function(ok, e){
-			if (ok) 
+			if (ok)
 				logStatus('The clip was uploaded successfully \\o/');
-			else 
+			else
 				logStatus('Uploading the clip failed :-(');
-	        if (e.target.responseText) alert(e.target.responseText);
-	        buttonUpload.disabled = false;
+			if (e.target.responseText) alert(e.target.responseText);
+			buttonUpload.disabled = false;
 		},
 		function(prog){
 			logStatus('Uploading clip ['+Math.ceil(100*prog)+'%]');

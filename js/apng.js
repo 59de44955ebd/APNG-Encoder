@@ -1,6 +1,6 @@
 /**
  * APNG Encoder
- * 
+ *
  * @file Creates an APNG from an array of PNG blobs.
  * @author Valentin Schmidt
  * @version 0.3
@@ -29,7 +29,7 @@
 'use strict';
 
 (function(root) {
-	
+
 	var APNGEncoder = function(){
 		this._crcTable = new Uint32Array(256);
 		for (var n=0; n<256; n++) {
@@ -38,10 +38,10 @@
 				if (c & 1) c = 0xedb88320 ^ (c >>> 1);
 				else c = c >>> 1;
 			}
-			this._crcTable[n] = c;  
+			this._crcTable[n] = c;
 		}
 	}
-		
+
 	/**
 	 * Creates APNG from array of PNG blobs
 	 * @param {array} frames - Array of PNGs as blobs
@@ -51,21 +51,21 @@
 		if (console.time) console.time('Encoding APNG');
 		var chunks = [];
 		var sequence_number = 0;
-	
+
 		// PNG header
 		var header = new Uint8Array([137,80,78,71, 13,10,26,10]); // 8 bytes
 		chunks.push(header.buffer);
-	
+
 		var reader = new FileReader();
 		var frame_num = 0;
-	
+
 		reader.onload = (e) => {
 			var view = new DataView(reader.result); // reader.result: ArrayBuffer
 			//console.log(view.getUint32(16)); // image width
 			//console.log(view.getUint32(20)); // image height
-	
+
 			var pos = 8;
-	
+
 			if (frame_num==0){
 				//######################################
 				// add IHDR chunk
@@ -83,7 +83,7 @@
 				IHDR_view.setUint8(20, 0); // interlace method
 				IHDR_view.setUint32(21, this._crc(IHDR, 4, 4 + 13));
 				chunks.push(IHDR.buffer);
-	
+
 				//######################################
 				// add acTL (animation control chunk) => updated later
 				//######################################
@@ -96,7 +96,7 @@
 				acTL_view.setUint32(16, this._crc(acTL, 4, 4 + 8));
 				chunks.push(acTL.buffer);
 			}
-	
+
 			//######################################
 			// add fcTL (frame control chunk)
 			//######################################
@@ -121,20 +121,20 @@
 			fcTL_view.setUint8(33, 0); // blend_op
 			fcTL_view.setUint32(34, this._crc(fcTL, 4, 4 + 26));
 			chunks.push(fcTL.buffer);
-	
+
 			// parse PNG chunks
 			var len = reader.result.byteLength;
 			while (true){
 				var chunkLen = view.getUint32(pos);
 				if (view.getUint32(pos+4)==0x49444154){ // 'IDAT'
-	
+
 					//add either as IDAT or fdAT chunk
 					if (frame_num==0){
 						//######################################
 						// add IDAT chunk
 						//######################################
 						chunks.push(reader.result.slice(pos, pos+chunkLen+8+4));
-	
+
 					}else{
 						//######################################
 						// add fdAT chunk
@@ -143,7 +143,7 @@
 						var fdAT_view = new DataView(fdAT.buffer);
 						fdAT_view.setUint32(0, chunkLen + 4);
 						chunks.push(fdAT.buffer);
-	
+
 						fdAT = new Uint8Array( reader.result.slice(pos, pos+chunkLen+8+4) );
 						fdAT_view = new DataView(fdAT.buffer);
 						this._writeStr(fdAT, 0, 'fdAT');
@@ -152,34 +152,34 @@
 						chunks.push(fdAT.buffer);
 					}
 				}
-	
+
 				pos += chunkLen + 12; // size (4 bytes) + name (4 bytes) + data + crc (4 bytes)
 				if (pos >= len) break;
 			}
-	
+
 			frame_num++;
-	
+
 			if (frame_num<frame_blobs.length){
-	
+
 				// handle next frame
 				reader.readAsArrayBuffer(frame_blobs[frame_num]);
-	
+
 			}else{
 				//######################################
 				// add IEND chunk
 				//######################################
 				chunks.push(new Uint8Array([0,0,0,0, 0x49,0x45,0x4E,0x44, 0xAE,0x42,0x60,0x82]).buffer); // 12 bytes
-	
+
 				if (console.timeEnd) console.timeEnd('Encoding APNG');
 				this._blob = new Blob(chunks, {type: 'image/png'});
 				cb(this._blob);
 			}
 		};
-	
+
 		// handle first frame
 		reader.readAsArrayBuffer(frame_blobs[0]);
 	};
-	
+
 	/**
 	 * Utility, saves APNG blob as local file
 	 * @param {string} [filename=animation.png]
@@ -189,16 +189,16 @@
 		var a = document.createElement('a');
 		document.body.appendChild(a);
 		a.style = 'display: none';
-	    var url = window.URL.createObjectURL(this._blob);
-	    a.href = url;
-	    a.download = filename;
-	    a.click();
+		var url = window.URL.createObjectURL(this._blob);
+		a.href = url;
+		a.download = filename;
+		a.click();
 		setTimeout(() => {
 			document.body.removeChild(a);
 			window.URL.revokeObjectURL(url);
 		}, 100);
 	};
-	
+
 	/**
 	 * Utility, uploads APNG blob via ajax and HTTP POST
 	 * @param {string} url
@@ -208,29 +208,29 @@
 	 * @param {function} [cbProgress]
 	 */
 	APNGEncoder.prototype.upload =  function (url, varName, postVars, cbLoaded, cbProgress) {
-	    var fd = new FormData();
-	    fd.append(varName, this._blob);
-	    if (postVars){
-	    	for (var k in postVars) fd.append(k, postVars[k]);
-	    }
-	    var xhr = new XMLHttpRequest();
-	    xhr.addEventListener('load', function(e) {
-	    	cbLoaded(true, e);
-	    }, false);
-	    xhr.addEventListener('error', function(e) {
-	    	cbLoaded(false, e);
-	    }, false);	
+		var fd = new FormData();
+		fd.append(varName, this._blob);
+		if (postVars){
+			for (var k in postVars) fd.append(k, postVars[k]);
+		}
+		var xhr = new XMLHttpRequest();
+		xhr.addEventListener('load', function(e) {
+			cbLoaded(true, e);
+		}, false);
+		xhr.addEventListener('error', function(e) {
+			cbLoaded(false, e);
+		}, false);
 		if (xhr.upload && cbProgress) {
 			xhr.upload.onprogress = function(e){
 				if (e.lengthComputable) {
 					cbProgress(e.loaded/e.total);
 				}
 			}
-		}	
-	    xhr.open('POST', url);
-	    xhr.send(fd);
+		}
+		xhr.open('POST', url);
+		xhr.send(fd);
 	};
-	
+
 	/**
 	 * @private
 	 */
@@ -239,7 +239,7 @@
 			arr[pos+i] = str.charCodeAt(i);
 		}
 	};
-	
+
 	/**
 	 * @private
 	 */
@@ -247,7 +247,7 @@
 		for (var i=0; i<len; i++)  c = this._crcTable[(c ^ buf[off+i]) & 0xff] ^ (c >>> 8);
 		return c;
 	};
-	
+
 	/**
 	 * @private
 	 */
